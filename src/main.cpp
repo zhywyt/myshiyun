@@ -8,6 +8,7 @@
 extern unique_ptr<CompUnitAST> root;
 extern int yyparse();
 extern void initFileName(char *);
+extern void zhywyt_error(const char*);
 extern FILE *yyin;
 void preprocess(std::string srcFileName);
 int main(int argc, char **argv) {
@@ -36,7 +37,14 @@ int main(int argc, char **argv) {
         //ofstream outfile;
         //outfile.open("../ast/" + filename_out + ".ast.txt", ios::out | ios::trunc);
         Printer printer;
-        std::cout << printer.visit(*root) << std::endl;
+        std::string info = printer.visit(*root);
+        extern int error_num;
+        std::cout << info << std::endl;
+        if(error_num)
+            zhywyt_error((std::string("There is ")+std::to_string(error_num)+" Syntax Error!\n").c_str());
+        else{
+            printf("\033[1;32mCongratulate! There is not Syntax Error!\033[0m\n");
+        }
     }
     return 0;
 }

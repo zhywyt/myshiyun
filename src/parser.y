@@ -11,9 +11,13 @@
 
     extern int yylineno;
     extern int yylex();
+	int error_num = 0;
     extern void yyerror(const char *s);
     extern void initFileName(char *name);
     char filename[100];
+	// #define ERROR_INFO_ZHYWYT yymsg="error test\n"
+	#define ERROR_INFO_ZHYWYT 
+	
 %}
 
 %union {
@@ -94,10 +98,52 @@
 %token <int_val> INT           // 指定INT字面量的语义值是type_int，有词法分析得到的数值
 %token <float_val> FLOAT       // 指定FLOAT字面量的语义值是type_float，有词法分析得到的数值
 %token <token> ID            // 指定ID
+
+
+%token INTTYPE "int"
+%token FLOATTYPE "float"
+%token VOID "void"
+%token CONST "const"
+%token RETURN "return"
+%token IF "if"
+%token WHILE "while"
+%token BREAK "break"
+%token CONTINUE "continue"
+%token LP "("
+%token RP ")"
+%token LB "["
+%token RB "]"
+%token LC "{"
+%token RC "}"
+%token COMMA ","
+%token SEMICOLON ";"
+
+%right NOT "!"
+%right POS 
+%right NEG 
+
+%left ASSIGN "="
+%left MINUS "-"
+%left ADD "+"
+%left MUL "*"
+%left DIV "/"
+%left MOD "%"
+%left AND "&&"
+%left OR "||"
+%left GTE ">="
+%left LTE "<="
+%left GT ">"
+%left LT "<"
+%left EQ "=="
+%left NEQ "!="
+
+%nonassoc LOWER_THEN_ELSE "then"
+%nonassoc ELSE "else"
+/* 
 %token GTE LTE GT LT EQ NEQ    // 关系运算
 %token INTTYPE FLOATTYPE VOID  // 数据类型
 %token CONST RETURN IF ELSE WHILE BREAK CONTINUE
-%token LP RP LB RB LC RC COMMA SEMICOLON
+%token LP  RP  LB RB LC RC COMMA SEMICOLON
 //用bison对该文件编译时，带参数-d，生成的exp.tab.h中给这些单词进行编码，可在lex.l中包含parser.tab.h使用这些单词种类码
 %token NOT POS NEG ASSIGN MINUS ADD MUL DIV MOD AND OR
 
@@ -110,13 +156,16 @@
 %right NOT POS NEG 
 
 %nonassoc LOWER_THEN_ELSE
-%nonassoc ELSE
+%nonassoc ELSE */
 
 %start Program
 
 %%
 Program:CompUnit {
           root = unique_ptr<CompUnitAST>($1);
+		}
+		|Program error{
+			ERROR_INFO_ZHYWYT;
 		}
 		;
 
@@ -129,6 +178,9 @@ CompUnit:CompUnit DeclDef {
             $$ = new CompUnitAST();
 		    $$->declDefList.push_back(unique_ptr<DeclDefAST>($1));
 		}
+		|CompUnit error{
+			ERROR_INFO_ZHYWYT;
+		}
 		;
 
 //声明或者函数定义
@@ -139,6 +191,9 @@ DeclDef: Decl {
 		|FuncDef {
             $$ =  new DeclDefAST();
 			$$->funcDef = unique_ptr<FuncDefAST>($1);
+		}
+		|DeclDef error{
+			ERROR_INFO_ZHYWYT;
 		}
         ;
 
@@ -155,6 +210,9 @@ Decl:	CONST BType DefList SEMICOLON {
 			$$->bType = $1;
 			$$->defList.swap($2->list);
         }
+		|Decl error{
+			ERROR_INFO_ZHYWYT;
+		}
 		;
 
 // 基本类型
@@ -164,6 +222,9 @@ BType:	INTTYPE {
 		|FLOATTYPE {
             $$ = TYPE_FLOAT;
         }
+		|BType error{
+			ERROR_INFO_ZHYWYT;
+		}
 		;
 
 // 定义列表
@@ -174,6 +235,9 @@ DefList:Def {
 		|DefList COMMA Def {
 			$$ = $1;
             $$->list.push_back(unique_ptr<DefAST>($3));
+		}
+		|DefList error{
+			ERROR_INFO_ZHYWYT;
 		}
 		;
 
@@ -198,6 +262,9 @@ Def:	ID Arrays ASSIGN InitVal {
             $$ = new DefAST();
             $$->id = unique_ptr<string>($1);
         }
+		|Def error{
+			ERROR_INFO_ZHYWYT;
+		}
 		;
 
 // 数组
@@ -208,6 +275,9 @@ Arrays: LB Exp RB {
         |Arrays LB Exp RB {
 			$$ = $1;
 			$$->list.push_back(unique_ptr<AddExpAST>($3));
+		}
+		|Arrays error{
+			ERROR_INFO_ZHYWYT;
 		}
 		;
 
@@ -224,6 +294,9 @@ InitVal: Exp {
 			$$ = new InitValAST();
 			$$->initValList.swap($2->list);
 		}	
+		|InitVal error{
+			ERROR_INFO_ZHYWYT;
+		}
 		;
 
 // 变量列表
@@ -234,6 +307,9 @@ InitValList:InitValList COMMA InitVal {
 		|InitVal {
 			$$  = new InitValListAST();
 			$$->list.push_back(unique_ptr<InitValAST>($1));
+		}
+		|InitValList error{
+			ERROR_INFO_ZHYWYT;
 		}
 		;
 
@@ -264,10 +340,16 @@ FuncDef: BType ID LP FuncFParamList RP Block {
 			$$->id = unique_ptr<string>($2);
 			$$->block = unique_ptr<BlockAST>($5);
 		}
+		|FuncDef error{
+			ERROR_INFO_ZHYWYT;
+		}
 		;
 
 VoidType: VOID {
 			$$ = TYPE_VOID;
+		}
+		|VoidType error{
+			ERROR_INFO_ZHYWYT;
 		}
 		;
 
@@ -280,6 +362,9 @@ FuncFParamList: FuncFParam {
 				$$ = $1;
 				$$->list.push_back(unique_ptr<FuncFParamAST>($3));
 			}	
+			|FuncFParamList error{
+				ERROR_INFO_ZHYWYT;
+			}
 			;
 
 // 函数形参
@@ -302,6 +387,9 @@ FuncFParam:	 BType ID {
 				$$->isArray = true;
 				$$->arrays.swap($5->list);
 			}	
+			|FuncFParam error{
+				ERROR_INFO_ZHYWYT;
+			}
 			;
 
 // 语句块
@@ -312,6 +400,9 @@ Block:	 LC RC {
 			$$ = new BlockAST();
 			$$->blockItemList.swap($2->list);
 		}	
+		|Block error{
+			ERROR_INFO_ZHYWYT;
+		}
 		;
 
 // 语句块项列表
@@ -323,6 +414,9 @@ BlockItemList:BlockItem	{
 				$$ = $1;
 				$$->list.push_back(unique_ptr<BlockItemAST>($2));
 			}		
+			|BlockItemList error{
+				ERROR_INFO_ZHYWYT;
+			}
 			;
 
 // 语句块项
@@ -334,6 +428,9 @@ BlockItem:	 Decl {
 				$$ = new BlockItemAST();
 				$$->stmt = unique_ptr<StmtAST>($1);
 			}	
+			|BlockItem error{
+				ERROR_INFO_ZHYWYT;
+			}
 			;
 
 // 语句，根据type判断是何种类型的Stmt
@@ -407,6 +504,9 @@ Stmt:	LVal ASSIGN Exp SEMICOLON {
 			add->exp = unique_ptr<AddExpAST>($2);
 			$$->returnStmt = unique_ptr<ReturnStmtAST>(add);
 		}
+		|Stmt error{
+			ERROR_INFO_ZHYWYT;
+		}
 		;
 
 
@@ -420,11 +520,17 @@ Stmt:	LVal ASSIGN Exp SEMICOLON {
 Exp:	AddExp {
 			$$ = $1;
 		}
+		|Exp error{
+			ERROR_INFO_ZHYWYT;
+		}
 		;
 
 // 条件表达式
 Cond:	LOrExp {
 			$$ = $1;
+		}
+		|Cond error{
+			ERROR_INFO_ZHYWYT;
 		}
 		;
 
@@ -437,6 +543,9 @@ LVal:	ID {
 			$$ = new LValAST();
 			$$->id = unique_ptr<string>($1);
 			$$->arrays.swap($2->list);
+		}
+		|LVal error{
+			ERROR_INFO_ZHYWYT;
 		}
 		;
 
@@ -455,7 +564,10 @@ PrimaryExp:	 LP Exp RP {
 				$$ = new PrimaryExpAST();
 				$$->number = unique_ptr<NumberAST>($1);
 				
-			}		
+			}
+			|PrimaryExp error{
+				ERROR_INFO_ZHYWYT;
+			}
 			;
 
 // 数值
@@ -470,7 +582,10 @@ Number:	 INT {
 			$$->isInt = false;
 			$$->floatval = $1;
 			
-		}		
+		}
+		|Number error{
+			ERROR_INFO_ZHYWYT;
+		}
    		;
 
 // 一元表达式
@@ -488,7 +603,10 @@ UnaryExp:	 PrimaryExp	{
 				$$ = new UnaryExpAST();
 				$$->op = $1;
 				$$->unaryExp = unique_ptr<UnaryExpAST>($2);
-			}		
+			}
+			|UnaryExp error{
+				ERROR_INFO_ZHYWYT;
+			}
 			;
 
 //函数调用
@@ -496,14 +614,17 @@ Call:ID LP RP {
 		$$ = new CallAST();
 		$$->id = unique_ptr<string>($1);
 		
-	}
-	 |ID LP FuncCParamList RP {
-		$$ = new CallAST();
-		$$->id = unique_ptr<string>($1);
-		$$->funcCParamList.swap($3->list);
-		
-	 }
-	 ;	
+		}
+		|ID LP FuncCParamList RP {
+			$$ = new CallAST();
+			$$->id = unique_ptr<string>($1);
+			$$->funcCParamList.swap($3->list);
+			
+		}
+		|Call error{
+		ERROR_INFO_ZHYWYT;
+		}
+		;	
 
 // 单目运算符,这里可能与优先级相关，不删除该非终结符
 UnaryOp: ADD {
@@ -514,7 +635,10 @@ UnaryOp: ADD {
 		}
     	|NOT {
             $$ = UOP_NOT;
-		}	
+		}
+		|UnaryOp error{
+			ERROR_INFO_ZHYWYT;
+		}
 		;
 
 // 函数实参表
@@ -525,6 +649,9 @@ FuncCParamList: Exp {
 			|FuncCParamList COMMA Exp {
 				$$ = (FuncCParamListAST*) $1;
 				$$->list.push_back(unique_ptr<AddExpAST>($3));
+			}
+			|FuncCParamList error{
+				ERROR_INFO_ZHYWYT;
 			}
 			;
 				
@@ -554,7 +681,10 @@ MulExp:	 UnaryExp {
 			$$->op = MOP_MOD;
 			$$->unaryExp = unique_ptr<UnaryExpAST>($3);
 			
-		}	
+		}
+		|MulExp error{
+			ERROR_INFO_ZHYWYT;
+		}
 		;
 
 // 加减表达式
@@ -576,6 +706,9 @@ AddExp:	 MulExp	{
 			$$->op = AOP_MINUS;
 			$$->mulExp = unique_ptr<MulExpAST>($3);
 			
+		}
+		|AddExp error{
+			ERROR_INFO_ZHYWYT;
 		}
 		;
 
@@ -613,6 +746,9 @@ RelExp:	 AddExp	{
 			$$->addExp = unique_ptr<AddExpAST>($3);
 			
 		}  //分析关系运算符号自身值保存在$2中
+		|RelExp error{
+			ERROR_INFO_ZHYWYT;
+		}
 		;
 
 // 相等性表达式
@@ -634,7 +770,10 @@ EqExp:	 RelExp	{
 			$$->op = EOP_NEQ;
 			$$->relExp = unique_ptr<RelExpAST>($3);
 			
-		} 	
+		}
+		|EqExp error{
+			ERROR_INFO_ZHYWYT;
+		}
 		;
 
 // 逻辑与表达式
@@ -647,7 +786,10 @@ LAndExp: EqExp {
 			$$ = new LAndExpAST();
 			$$->lAndExp = unique_ptr<LAndExpAST>($1);
 			$$->eqExp = unique_ptr<EqExpAST>($3);
-		} 	
+		}
+		|LAndExp error{
+			ERROR_INFO_ZHYWYT;
+		}
 		;
 
 // 逻辑或表达式
@@ -661,16 +803,23 @@ LOrExp:	 LAndExp {
 			$$->lOrExp = unique_ptr<LOrExpAST>($1);
 			$$->lAndExp = unique_ptr<LAndExpAST>($3);
 			
-		} 	
+		}
+		|LOrExp error{
+			ERROR_INFO_ZHYWYT;
+		}
 		;
 %%
 
 void initFileName(char *name){
     strcpy(filename, name);
 }
-
+void zhywyt_error(const char*_str){
+	printf("\033[1;31m%s\033[0m",_str);
+}
 void yyerror(const char* fmt) {
-    printf("%s:%d ", filename, yylloc.first_line);
-    printf("%s\n", fmt);
+	error_num++;
+	std::string info;
+	info=info+"[Syntax Error!]\tAt"+" Line "+std::to_string(yylloc.first_line)+" Column  "+std::to_string(yylloc.first_column)+" "+fmt+"\n";
+	zhywyt_error(info.c_str());
 }
 

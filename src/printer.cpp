@@ -353,6 +353,7 @@ std::string Printer::visit(LValAST &ast) {
     ans+=strfmt("%*s", depth, "");
     ans+= "id:" + (*ast.id) +"( "+std::to_string(ast.m_line)+" )\n";
     if (!ast.arrays.empty()) {
+        ans+=strfmt("%*s", depth, "");
         ans+= "Arrays:( "+std::to_string(ast.m_line)+" )\n";
         depth += 2;
         for (auto &i : ast.arrays) {

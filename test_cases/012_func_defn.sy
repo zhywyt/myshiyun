@@ -1,6 +1,3 @@
-/* 2021_functional 测试用例集：
-   012_func_defn.sy
-*/   
 int a;
 int func(int p){
 	p = p - 1;
@@ -12,3 +9,6 @@ int main(){
 	b = func(a);
 	return b;
 }
+/* 2021_functional 测试用例集：
+   012_func_defn.sy
+*/   

@@ -7,6 +7,8 @@
 int yycolumn=1;
 #define YY_USER_ACTION    	yylloc.first_line=yylloc.last_line=yylineno; \
 	yylloc.first_column=yycolumn;	yylloc.last_column=yycolumn+yyleng-1; yycolumn+=yyleng;
+extern int error_num;
+#define ERROR_INFO_ZHYWYT error_num++
 %}
 %option yylineno
 
@@ -86,10 +88,10 @@ ILLEGAL_ID					{DIGIT}+({LETTER}|{DIGIT})*
 [ \r\t] 	{}
 {SingleLineComment} {}
 {MultilineComment}	{}
-{ILLEGAL_OCTAL_CONST}                       { printf("\033[1;31mError type ILLEGAL_OCTAL_CONST at line %d: Illegal octal number \'%s\'\033[0m\n", yylineno, yytext);  }
-{ILLEGAL_HEX_CONST}                         { printf("\033[1;31mError type ILLEGAL_HEX_CONST at line %d: Illegal hex number \'%s\'\033[0m\n", yylineno, yytext);  }  
-{ILLEGAL_ID}								{ printf("\033[1;31mError type ILLEGAL_ID at line %d: Illegal  ID\'%s\'\033[0m\n", yylineno, yytext); }
-.			{printf("Error type A at Line %d :Invalid character character \"%s\"\n",yylineno,yytext);}
+{ILLEGAL_OCTAL_CONST}                       { printf("\033[1;31m[Syntax Error!]Error type ILLEGAL_OCTAL_CONST at line %d: Illegal octal number \'%s\'\033[0m\n", yylineno, yytext);ERROR_INFO_ZHYWYT;}
+{ILLEGAL_HEX_CONST}                         { printf("\033[1;31m[Syntax Error!]Error type ILLEGAL_HEX_CONST at line %d: Illegal hex number \'%s\'\033[0m\n", yylineno, yytext);ERROR_INFO_ZHYWYT;}  
+{ILLEGAL_ID}								{ printf("\033[1;31m[Syntax Error!]Error type ILLEGAL_ID at line %d: Illegal  ID\'%s\'\033[0m\n", yylineno, yytext);}
+.			{printf("\033[1;31m[Syntax Error!]Error type A at Line %d Column %d:Invalid character character \"%s\"\033[0m\n",yylineno,yycolumn,yytext);ERROR_INFO_ZHYWYT;}
 
 %%
 
