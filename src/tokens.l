@@ -12,11 +12,8 @@ int yycolumn=1;
 
 ID [a-z_A-Z][a-z_A-Z0-9]*
 INT ([1-9][0-9]*|0[0-7]*|(0x|0X)[0-9a-fA-F]+)
-EXP ([Ee][-+]?[0-9]+)
-FLOAT (([0-9]*\.[0-9]+|[0-9]+\.){EXP}?[fF]?)|[0-9]+{EXP}[fF]?
 MultilineComment "/*"([^\*]|(\*)*[^\*/])*(\*)*"*/"
 SingleLineComment "//".*$
-Invalid ([0-9]+[A-Za-z]+[0-9]*|0[0-9]*[8-9]+[0-9]*)
 
 FLOAT_SUFFIX [fFlL]
 
@@ -34,6 +31,12 @@ HEX_FLOAT_LIT ({HEX_FLOAT_LIT_HAVE_POINT_HAVE_RIGHT}|{HEX_FLOAT_LIT_HAVE_POINT_N
 
 FLOAT_LIT ({DEC_FLOAT_LIT}|{HEX_FLOAT_LIT})
 
+DIGIT               		[0-9]
+HEX_PREFIX          		0x|0X
+LETTER              		[A-Za-z]
+ILLEGAL_OCTAL_CONST 		0[0-9a-wy-zA-WY-Z]({LETTER}|{DIGIT})*
+ILLEGAL_HEX_CONST   		{HEX_PREFIX}({LETTER}|{DIGIT})*
+ILLEGAL_ID					{DIGIT}+({LETTER}|{DIGIT})*
 
 %%
 
@@ -83,7 +86,11 @@ FLOAT_LIT ({DEC_FLOAT_LIT}|{HEX_FLOAT_LIT})
 [ \r\t] 	{}
 {SingleLineComment} {}
 {MultilineComment}	{}
-.			{printf("Error type A :Mysterious character \"%s\"\n\t at Line %d\n",yytext,yylineno);}
+{ILLEGAL_OCTAL_CONST}                       { printf("\033[1;31mError type ILLEGAL_OCTAL_CONST at line %d: Illegal octal number \'%s\'\033[0m\n", yylineno, yytext);  }
+{ILLEGAL_HEX_CONST}                         { printf("\033[1;31mError type ILLEGAL_HEX_CONST at line %d: Illegal hex number \'%s\'\033[0m\n", yylineno, yytext);  }  
+{ILLEGAL_ID}								{ printf("\033[1;31mError type ILLEGAL_ID at line %d: Illegal  ID\'%s\'\033[0m\n", yylineno, yytext); }
+.			{printf("Error type A at Line %d :Invalid character character \"%s\"\n",yylineno,yytext);}
+
 %%
 
 

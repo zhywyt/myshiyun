@@ -11,24 +11,25 @@ extern void initFileName(char *);
 extern FILE *yyin;
 void preprocess(std::string srcFileName);
 int main(int argc, char **argv) {
-    assert(argc >= 2);
-    char *filename;
-    bool print_ast = false;
-    if(argc == 2) {
-        filename = argv[1];
-    }else if(argc == 3){
-        print_ast = true;
-        filename = argv[2];
-    }
-    yyin = fopen(filename, "r");
-    if (yyin == nullptr) {
-        std::cout << "yyin open " << filename << " failed" << std::endl;
-        return -1;
-    }
-    std::string filename_out = strcpy(filename,strrchr(filename,'/')+1);
+    // assert(argc >= 2);
+    bool print_ast = true;
+    if(argc>=2){
+        char *filename;
+        if(argc == 2) {
+            filename = argv[1];
+        }else if(argc == 3){
+            print_ast = false;
+            filename = argv[2];
+        }
+        yyin = fopen(filename, "r");
+        if (yyin == nullptr) {
+            std::cout << "yyin open " << filename << " failed" << std::endl;
+            return -1;
+        }
+        std::string filename_out = strcpy(filename,strrchr(filename,'/')+1);
 
-    initFileName(filename);
-
+        initFileName(filename);
+    }
     yyparse();
 
     if (print_ast) {

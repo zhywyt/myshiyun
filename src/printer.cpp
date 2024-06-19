@@ -1,5 +1,4 @@
 #include "printer.h"
-
 // ref: https://stackoverflow.com/questions/2342162/stdstring-formatting-like-sprintf
 template <typename... Args>
 std::string strfmt(const std::string& format, Args... args) {
@@ -15,7 +14,7 @@ std::string strfmt(const std::string& format, Args... args) {
 
 std::string Printer::visit(CompUnitAST &ast) {
     std::string ans=strfmt("%*s", depth, "");
-    ans+="CompUnit:\n";
+    ans+="CompUnit: ( "+std::to_string(ast.m_line)+" )\n";
     depth += 2;
     for (auto &i : ast.declDefList) {
         ans+=visit(*i);
@@ -36,15 +35,15 @@ std::string Printer::visit(DeclDefAST &ast) {
 
 std::string Printer::visit(DeclAST &ast) {
     std::string ans=strfmt("%*s", depth, "");
-    ans+= "Decl:\n" ;
+    ans+= "Decl:( "+std::to_string(ast.m_line)+" )\n" ;
     depth += 2;
     if (ast.isConst) {
         ans+=strfmt("%*s", depth, "");
-        ans+="const\n";
+        ans+="const( "+std::to_string(ast.m_line)+" )\n";
     }
     ans+=strfmt("%*s", depth, "");
-    if (ast.bType == TYPE_INT) ans+="BType:int\n";
-    else ans+="BType:float\n";
+    if (ast.bType == TYPE_INT) ans+="BType:int( "+std::to_string(ast.m_line)+" )\n";
+    else ans+="BType:float( "+std::to_string(ast.m_line)+" )\n";
     for (auto &def: ast.defList) {
         ans+=visit(*def);
     }
@@ -54,13 +53,13 @@ std::string Printer::visit(DeclAST &ast) {
 
 std::string Printer::visit(DefAST &ast) {
     std::string ans=strfmt("%*s", depth, "");
-    ans+= "Def:\n" ;
+    ans+= "Def:( "+std::to_string(ast.m_line)+" )\n" ;
     depth += 2;
     ans+=strfmt("%*s", depth, "");
-    ans+= "id:" + *(ast.id) +"\n";
+    ans+= "id:" + *(ast.id) +"( "+std::to_string(ast.m_line)+" )\n";
     if (!ast.arrays.empty()) {
         ans+=strfmt("%*s", depth, "");
-        ans+="Arrays:\n";
+        ans+="Arrays:( "+std::to_string(ast.m_line)+" )\n";
         depth += 2;
         for (auto &i : ast.arrays) {
             ans+=visit(*i);
@@ -77,19 +76,19 @@ std::string Printer::visit(InitValAST &ast) {
     ans+="InitValAST:";
     depth += 2;
     if (ast.exp != nullptr) {
-        ans+="\n";
+        ans+="( "+std::to_string(ast.m_line)+" )\n";
         ans+=visit(*ast.exp);
     } else if (!ast.initValList.empty()) {
-        ans+="\n";
+        ans+="( "+std::to_string(ast.m_line)+" )\n";
         ans+=strfmt("%*s", depth, "");
-        ans+= "InitValList:\n";
+        ans+= "InitValList:( "+std::to_string(ast.m_line)+" )\n";
         depth += 2;
         for (auto &initVal: ast.initValList) {
             ans+=visit(*initVal);
         }
         depth -= 2;
     } else {
-        ans+= "{}\n";
+        ans+= "{}( "+std::to_string(ast.m_line)+" )\n";
     }
     depth -= 2;
     return ans;
@@ -97,17 +96,17 @@ std::string Printer::visit(InitValAST &ast) {
 
 std::string Printer::visit(FuncDefAST &ast) {
     std::string ans=strfmt("%*s", depth, "");
-    ans+="FuncDef:\n";
+    ans+="FuncDef:( "+std::to_string(ast.m_line)+" )\n";
     depth += 2;
     ans+=strfmt("%*s", depth, "");
-    if (ast.funcType == TYPE_VOID) ans+= "funcType:void\n" ;
-    else if (ast.funcType == TYPE_INT) ans+= "funcType:int\n" ;
-    else ans+= "funcType:float\n";
+    if (ast.funcType == TYPE_VOID) ans+= "funcType:void( "+std::to_string(ast.m_line)+" )\n" ;
+    else if (ast.funcType == TYPE_INT) ans+= "funcType:int( "+std::to_string(ast.m_line)+" )\n" ;
+    else ans+= "funcType:float( "+std::to_string(ast.m_line)+" )\n";
     ans+=strfmt("%*s", depth, "");
-    ans+="id:" + *ast.id +"\n";
+    ans+="id:" + *ast.id +"( "+std::to_string(ast.m_line)+" )\n";
     if (!ast.funcFParamList.empty()) {
         ans+=strfmt("%*s", depth, "");
-        ans+="FuncFParamList:\n";
+        ans+="FuncFParamList:( "+std::to_string(ast.m_line)+" )\n";
         depth += 2;
         for (auto &i : ast.funcFParamList) {
             ans+=visit(*i);
@@ -121,20 +120,20 @@ std::string Printer::visit(FuncDefAST &ast) {
 
 std::string Printer::visit(FuncFParamAST &ast) {
     std::string ans=strfmt("%*s", depth, "");
-    ans+= "FuncFParam:\n";
+    ans+= "FuncFParam:( "+std::to_string(ast.m_line)+" )\n";
     depth += 2;
     ans+=strfmt("%*s", depth, "");
-    if (ast.bType == TYPE_INT) ans+="BType:int\n";
-    else ans+="BType:float\n";
+    if (ast.bType == TYPE_INT) ans+="BType:int( "+std::to_string(ast.m_line)+" )\n";
+    else ans+="BType:float( "+std::to_string(ast.m_line)+" )\n";
     ans+=strfmt("%*s", depth, "");
-    ans+= "id:" + *ast.id +"\n";
+    ans+= "id:" + *ast.id +"( "+std::to_string(ast.m_line)+" )\n";
     if (ast.isArray) {
         ans+=strfmt("%*s", depth, "");
-        ans+= "Array:[]\n" ;
+        ans+= "Array:[]( "+std::to_string(ast.m_line)+" )\n" ;
     }
     if (!ast.arrays.empty()) {
         ans+=strfmt("%*s", depth, "");
-        ans+="Arrays:\n";
+        ans+="Arrays:( "+std::to_string(ast.m_line)+" )\n";
         depth += 2;
         for (auto &i : ast.arrays) {
             ans+=visit(*i);
@@ -147,11 +146,11 @@ std::string Printer::visit(FuncFParamAST &ast) {
 
 std::string Printer::visit(BlockAST &ast) {
     std::string ans=strfmt("%*s", depth, "");
-    ans+= "Block:\n";
+    ans+= "Block:( "+std::to_string(ast.m_line)+" )\n";
     depth += 2;
     if (!ast.blockItemList.empty()) {
         ans+=strfmt("%*s", depth, "");
-        ans+= "BlockItemList:\n" ;
+        ans+= "BlockItemList:( "+std::to_string(ast.m_line)+" )\n" ;
         depth += 2;
         for (auto &i : ast.blockItemList) {
             ans+=visit(*i);
@@ -177,47 +176,47 @@ std::string Printer::visit(StmtAST &ast) {
     ans+= "Stmt:";
     switch (ast.sType) {
         case SEMI:
-            ans+= "semicolon\n" ;
+            ans+= "semicolon( "+std::to_string(ast.m_line)+" )\n" ;
             break;
         case ASS:
-            ans+= "\n";
+            ans+= "( "+std::to_string(ast.m_line)+" )\n";
             depth += 2;
             ans+=visit(*ast.lVal);
             ans+=visit(*ast.exp);
             depth -= 2;
             break;
         case EXP:
-            ans+= "\n";
+            ans+= "( "+std::to_string(ast.m_line)+" )\n";
             depth += 2;
             ans+=visit(*ast.exp);
             depth -= 2;
             break;
         case CONT:
-            ans+= "continue\n";
+            ans+= "continue( "+std::to_string(ast.m_line)+" )\n";
             break;
         case BRE:
-            ans+= "break\n";
+            ans+= "break( "+std::to_string(ast.m_line)+" )\n";
             break;
         case RET:
-            ans+= "\n";
+            ans+= "( "+std::to_string(ast.m_line)+" )\n";
             depth += 2;
             ans+=visit(*ast.returnStmt);
             depth -= 2;
             break;
         case BLK:
-            ans+= "\n";
+            ans+= "( "+std::to_string(ast.m_line)+" )\n";
             depth += 2;
             ans+=visit(*ast.block);
             depth -= 2;
             break;
         case SEL:
-            ans+= "\n";
+            ans+= "( "+std::to_string(ast.m_line)+" )\n";
             depth += 2;
             ans+=visit(*ast.selectStmt);
             depth -= 2;
             break;
         case ITER:
-            ans+= "\n";
+            ans+= "( "+std::to_string(ast.m_line)+" )\n";
             depth += 2;
             ans+=visit(*ast.iterationStmt);
             depth -= 2;
@@ -229,9 +228,9 @@ std::string Printer::visit(StmtAST &ast) {
 std::string Printer::visit(ReturnStmtAST &ast) {
     std::string ans=strfmt("%*s", depth, "");
     ans+= "return:";
-    if (ast.exp == nullptr) ans+= "void\n" ;
+    if (ast.exp == nullptr) ans+= "void( "+std::to_string(ast.m_line)+" )\n" ;
     else {
-        ans+= "\n";
+        ans+= "( "+std::to_string(ast.m_line)+" )\n";
         depth += 2;
         ans+=visit(*ast.exp);
         depth -= 2;
@@ -241,7 +240,7 @@ std::string Printer::visit(ReturnStmtAST &ast) {
 
 std::string Printer::visit(SelectStmtAST &ast) {
     std::string ans=strfmt("%*s", depth, "");
-    ans+= "SelectStmt:\n" ;
+    ans+= "SelectStmt:( "+std::to_string(ast.m_line)+" )\n" ;
     depth += 2;
     ans+= visit(*ast.cond);
     ans+= visit(*ast.ifStmt);
@@ -252,7 +251,7 @@ std::string Printer::visit(SelectStmtAST &ast) {
 
 std::string Printer::visit(IterationStmtAST &ast) {
     std::string ans=strfmt("%*s", depth, "");
-    ans+= "IterationStmt:\n";
+    ans+= "IterationStmt:( "+std::to_string(ast.m_line)+" )\n";
     depth += 2;
     ans+=visit(*ast.cond);
     ans+=visit(*ast.stmt);
@@ -262,14 +261,14 @@ std::string Printer::visit(IterationStmtAST &ast) {
 
 std::string Printer::visit(AddExpAST &ast) {
     std::string ans=strfmt("%*s", depth, "");
-    ans+= "AddExp:\n";
+    ans+= "AddExp:( "+std::to_string(ast.m_line)+" )\n";
     depth += 2;
     if (ast.addExp != nullptr) {
         ans+=visit(*ast.addExp);
         ans+=strfmt("%*s", depth, "");
         ans+= "AOP:";
-        if (ast.op == AOP_ADD) ans+= "+\n";
-        else ans+= "-\n";
+        if (ast.op == AOP_ADD) ans+= "+( "+std::to_string(ast.m_line)+" )\n";
+        else ans+= "-( "+std::to_string(ast.m_line)+" )\n";
     }
     ans+=visit(*ast.mulExp);
     depth -= 2;
@@ -278,15 +277,15 @@ std::string Printer::visit(AddExpAST &ast) {
 
 std::string Printer::visit(MulExpAST &ast) {
     std::string ans=strfmt("%*s", depth, "");
-    ans+= "MulExp:\n" ;
+    ans+= "MulExp:( "+std::to_string(ast.m_line)+" )\n" ;
     depth += 2;
     if (ast.mulExp != nullptr) {
         ans+=visit(*ast.mulExp);
         ans+=strfmt("%*s", depth, "");
         ans+= "MOP:";
-        if (ast.op == MOP_MUL) ans+= "*\n" ;
-        else if(ast.op == MOP_DIV) ans+= "/\n";
-        else ans+= "%\n";
+        if (ast.op == MOP_MUL) ans+= "*( "+std::to_string(ast.m_line)+" )\n" ;
+        else if(ast.op == MOP_DIV) ans+= "/( "+std::to_string(ast.m_line)+" )\n";
+        else ans+= "%( "+std::to_string(ast.m_line)+" )\n";
     }
     ans+=visit(*ast.unaryExp);
     depth -= 2;
@@ -295,7 +294,7 @@ std::string Printer::visit(MulExpAST &ast) {
 
 std::string Printer::visit(UnaryExpAST &ast) {
     std::string ans=strfmt("%*s", depth, "");
-    ans+= "UnaryExp:\n";
+    ans+= "UnaryExp:( "+std::to_string(ast.m_line)+" )\n";
     depth += 2;
     if (ast.primaryExp != nullptr) {
         ans+=visit(*ast.primaryExp);
@@ -304,9 +303,9 @@ std::string Printer::visit(UnaryExpAST &ast) {
     } else {
         ans+=strfmt("%*s", depth, "");
         ans+= "UnaryOp:";
-        if (ast.op == UOP_ADD) ans+= "+\n";
-        if (ast.op == UOP_MINUS) ans+= "-\n";
-        if (ast.op == UOP_NOT) ans+= "!\n";
+        if (ast.op == UOP_ADD) ans+= "+( "+std::to_string(ast.m_line)+" )\n";
+        if (ast.op == UOP_MINUS) ans+= "-( "+std::to_string(ast.m_line)+" )\n";
+        if (ast.op == UOP_NOT) ans+= "!( "+std::to_string(ast.m_line)+" )\n";
         ans+=visit(*ast.unaryExp);
     }
     depth -= 2;
@@ -315,7 +314,7 @@ std::string Printer::visit(UnaryExpAST &ast) {
 
 std::string Printer::visit(PrimaryExpAST &ast) {
     std::string ans=strfmt("%*s", depth, "");
-    ans+= "PrimaryExp:\n";
+    ans+= "PrimaryExp:( "+std::to_string(ast.m_line)+" )\n";
     depth += 2;
     if (ast.exp != nullptr) {
         ans+=visit(*ast.exp);
@@ -330,13 +329,13 @@ std::string Printer::visit(PrimaryExpAST &ast) {
 
 std::string Printer::visit(CallAST &ast) {
     std::string ans=strfmt("%*s", depth, "");
-    ans+= "Call:\n";
+    ans+= "Call:( "+std::to_string(ast.m_line)+" )\n";
     depth += 2;
     ans+=strfmt("%*s", depth, "");
-    ans+= "id:" + (*ast.id) +"\n";
+    ans+= "id:" + (*ast.id) +"( "+std::to_string(ast.m_line)+" )\n";
     if (!ast.funcCParamList.empty()) {
         ans+=strfmt("%*s", depth, "");
-        ans+= "FuncCParamList:" +std::to_string(ast.funcCParamList.size()) +"\n";
+        ans+= "FuncCParamList:" +std::to_string(ast.funcCParamList.size()) +"( "+std::to_string(ast.m_line)+" )\n";
         depth += 2;
         for (auto &i : ast.funcCParamList) {
             ans+=visit(*i);
@@ -349,12 +348,12 @@ std::string Printer::visit(CallAST &ast) {
 
 std::string Printer::visit(LValAST &ast) {
     std::string ans=strfmt("%*s", depth, "");
-    ans+= "LVal:\n";
+    ans+= "LVal:( "+std::to_string(ast.m_line)+" )\n";
     depth += 2;
     ans+=strfmt("%*s", depth, "");
-    ans+= "id:" + (*ast.id) +"\n";
+    ans+= "id:" + (*ast.id) +"( "+std::to_string(ast.m_line)+" )\n";
     if (!ast.arrays.empty()) {
-        ans+= "Arrays:\n";
+        ans+= "Arrays:( "+std::to_string(ast.m_line)+" )\n";
         depth += 2;
         for (auto &i : ast.arrays) {
             ans+=visit(*i);
@@ -368,23 +367,23 @@ std::string Printer::visit(LValAST &ast) {
 std::string Printer::visit(NumberAST &ast) {
     std::string ans=strfmt("%*s", depth, "");
     ans+= "number:";
-    if (ast.isInt) ans+=  std::to_string(ast.intval) +"\n";
-    else ans+=  std::to_string(ast.floatval) +"\n";
+    if (ast.isInt) ans+=  std::to_string(ast.intval) +"( "+std::to_string(ast.m_line)+" )\n";
+    else ans+=  std::to_string(ast.floatval) +"( "+std::to_string(ast.m_line)+" )\n";
     return ans;
 }
 
 std::string Printer::visit(RelExpAST &ast) {
     std::string ans=strfmt("%*s", depth, "");
-    ans+= "RelExp:\n" ;
+    ans+= "RelExp:( "+std::to_string(ast.m_line)+" )\n" ;
     depth += 2;
     if (ast.relExp != nullptr) {
         ans+=visit(*ast.relExp);
         ans+=strfmt("%*s", depth, "");
         ans+= "RelOP:";
-        if (ast.op == ROP_GTE) ans+= ">=\n" ;
-        else if (ast.op == ROP_LTE) ans+= "<=\n" ;
-        else if (ast.op == ROP_GT) ans+= ">\n";
-        else if (ast.op == ROP_LT) ans+= "<\n" ;
+        if (ast.op == ROP_GTE) ans+= ">=( "+std::to_string(ast.m_line)+" )\n" ;
+        else if (ast.op == ROP_LTE) ans+= "<=( "+std::to_string(ast.m_line)+" )\n" ;
+        else if (ast.op == ROP_GT) ans+= ">( "+std::to_string(ast.m_line)+" )\n";
+        else if (ast.op == ROP_LT) ans+= "<( "+std::to_string(ast.m_line)+" )\n" ;
     }
     ans+=visit(*ast.addExp);
     depth -= 2;
@@ -393,14 +392,14 @@ std::string Printer::visit(RelExpAST &ast) {
 
 std::string Printer::visit(EqExpAST &ast) {
     std::string ans=strfmt("%*s", depth, "");
-    ans+= "EqExp:\n";
+    ans+= "EqExp:( "+std::to_string(ast.m_line)+" )\n";
     depth += 2;
     if (ast.eqExp != nullptr) {
         ans+=visit(*ast.eqExp);
         ans+=strfmt("%*s", depth, "");
         ans+= "EqOP:";
-        if (ast.op == EOP_EQ) ans+= "==\n";
-        else ans+= "!=\n";
+        if (ast.op == EOP_EQ) ans+= "==( "+std::to_string(ast.m_line)+" )\n";
+        else ans+= "!=( "+std::to_string(ast.m_line)+" )\n";
     }
     ans+=visit(*ast.relExp);
     depth -= 2;
@@ -409,7 +408,7 @@ std::string Printer::visit(EqExpAST &ast) {
 
 std::string Printer::visit(LAndExpAST &ast) {
     std::string ans=strfmt("%*s", depth, "");
-    ans+= "LAndExp:\n";
+    ans+= "LAndExp:( "+std::to_string(ast.m_line)+" )\n";
     depth += 2;
     if (ast.lAndExp != nullptr) {
         ans+=visit(*ast.lAndExp);
@@ -423,7 +422,7 @@ std::string Printer::visit(LAndExpAST &ast) {
 
 std::string Printer::visit(LOrExpAST &ast) {
     std::string ans=strfmt("%*s", depth, "");
-    ans+= "LOrExp:\n";
+    ans+= "LOrExp:( "+std::to_string(ast.m_line)+" )\n";
     depth += 2;
     if (ast.lOrExp != nullptr) {
         ans+=visit(*ast.lOrExp);

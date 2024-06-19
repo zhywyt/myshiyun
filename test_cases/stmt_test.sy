@@ -1,0 +1,20 @@
+int test_t(int t){
+    while(t < 30){
+        t = t + 1;
+        if(t == 3){
+            t = t + 3;
+            continue;
+        }
+        if(t == 8)
+            break;
+        else if(t == 5){
+            t = t + 1;
+        }
+    }
+    return t;
+}
+
+int main(){
+    int a = test_t(0);
+    a = a + 1;
+}

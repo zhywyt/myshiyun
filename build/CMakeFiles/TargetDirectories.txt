@@ -1,0 +1,3 @@
+/home/zhywyt/Documents/数学/计算机/编译原理/实验/实验二/myshiyun/build/CMakeFiles/compiler.dir
+/home/zhywyt/Documents/数学/计算机/编译原理/实验/实验二/myshiyun/build/CMakeFiles/edit_cache.dir
+/home/zhywyt/Documents/数学/计算机/编译原理/实验/实验二/myshiyun/build/CMakeFiles/rebuild_cache.dir

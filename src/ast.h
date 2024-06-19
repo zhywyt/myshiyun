@@ -45,12 +45,15 @@ class LOrExpAST;
 
 class Visitor;
 
-
+extern int yylineno;
 class BaseAST {
 public:
     virtual void accept(Visitor &visitor) = 0;
-    BaseAST() = default;
+    BaseAST(){
+        m_line = yylineno;
+    };
     virtual ~BaseAST() = default;
+    int m_line;
 };
 
 class CompUnitAST : public BaseAST {
