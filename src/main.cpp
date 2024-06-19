@@ -2,8 +2,10 @@
 #include <iostream>
 #include <cassert>
 #include <string>
+#include <sstream>
 #include "printer.h"
 #include "ast.h"
+#include "checker.h"
 
 extern unique_ptr<CompUnitAST> root;
 extern int yyparse();
@@ -33,18 +35,33 @@ int main(int argc, char **argv) {
     }
     yyparse();
 
-    if (print_ast) {
-        //ofstream outfile;
-        //outfile.open("../ast/" + filename_out + ".ast.txt", ios::out | ios::trunc);
-        Printer printer;
-        std::string info = printer.visit(*root);
-        extern int error_num;
+    //ofstream outfile;
+    //outfile.open("../ast/" + filename_out + ".ast.txt", ios::out | ios::trunc);
+    Printer printer;
+    std::string info = printer.visit(*root);
+    extern int error_num;
+    if(print_ast)
         std::cout << info << std::endl;
-        if(error_num)
-            zhywyt_error((std::string("There is ")+std::to_string(error_num)+" Syntax Error!\n").c_str());
-        else{
-            printf("\033[1;32mCongratulate! There is not Syntax Error!\033[0m\n");
-        }
+    if(error_num)
+        zhywyt_error((std::string("There is ")+std::to_string(error_num)+" Syntax Error!\n").c_str());
+    else{
+        printf("\033[1;32mCongratulate! There is not Syntax Error!\033[0m\n");
     }
+
+    std::ostringstream oss;
+    ErrorReporter errorReporter(oss);
+    Checker checker(errorReporter);
+    try{
+        zhywyt_error("-------------------In Try!-------------------\n");
+        checker.visit(*root);
+    }
+    catch(int ReturnCode){
+        zhywyt_error("-------------------In Catch!-------------------\n");
+        std::string info = oss.str();
+        // zhywyt_error((std::string("There is ")+std::to_string(error_num)+" Syntax Error!\n").c_str());
+        zhywyt_error((std::string("[Means Error!] : ")+info).c_str());
+        return -1;
+    }
+    printf("\033[1;32mCongratulate! There is not YuYi Error!\033[0m\n");
     return 0;
 }

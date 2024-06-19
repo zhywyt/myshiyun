@@ -27,7 +27,7 @@ enum EOP {
 };
 
 enum TYPE {
-    TYPE_VOID, TYPE_INT, TYPE_FLOAT
+    TYPE_VOID, TYPE_INT, TYPE_FLOAT,TYPE_BOOL
 };
 
 #endif //TEST_DEFINE_H
