@@ -279,16 +279,19 @@ void Checker::visit(IterationStmtAST &ast) {
  * @param {AddExpAST&} ast - 加法表达式类
  */
 void Checker::visit(AddExpAST &ast) {
+  TYPE ttype = TYPE_END;
   if (ast.addExp) {
     ast.addExp->accept(*this);
+    ttype = this->current_type.type;
   }
-  auto ttype = this->current_type.type;
   if (ast.mulExp) {
     ast.mulExp->accept(*this);
   }
-  if(this->current_type.type != ttype){
-     err.error(ErrorType::DifferentTypeForOperands,std::to_string(ttype)+" "+std::to_string(this->current_type.type),ast.m_line);
-        throw(int(ErrorType::DifferentTypeForOperands));
+  if(ttype<TYPE_END&&ttype>TYPE_VOID&&this->current_type.type<TYPE_END&&this->current_type.type>TYPE_VOID){
+    if(this->current_type.type != ttype){
+      err.error(ErrorType::DifferentTypeForOperands,std::to_string((int)ttype)+" "+std::to_string(this->current_type.type),ast.m_line);
+          throw(int(ErrorType::DifferentTypeForOperands));
+    }
   }
 }
 
@@ -361,8 +364,8 @@ void Checker::visit(LValAST &ast) {
     // 左值数组下标不是整数
     // 例如c[0.1] = 1;
     if (!Expr_int) {
-          err.error(ErrorType::ArrayIndexNotInt, *ast.id,ast.m_line);
-          throw(int(ErrorType::ArrayIndexNotInt));//finished
+      err.error(ErrorType::ArrayIndexNotInt, *ast.id,ast.m_line);
+      throw(int(ErrorType::ArrayIndexNotInt));//finished
     }
    
     

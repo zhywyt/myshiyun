@@ -263,6 +263,9 @@ Def:	ID Arrays ASSIGN InitVal {
             $$->id = unique_ptr<string>($1);
         }
 		|Def error{
+			$$->initVal=nullptr;
+			printf("InitVal error!\n");
+			fflush(stdout);
 			ERROR_INFO_ZHYWYT;
 		}
 		;

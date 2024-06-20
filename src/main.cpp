@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
     else{
         printf("\033[1;32mCongratulate! There is not Syntax Error!\033[0m\n");
     }
-
+    // if(argc==3){
     std::ostringstream oss;
     ErrorReporter errorReporter(oss);
     Checker checker(errorReporter);
@@ -62,6 +62,7 @@ int main(int argc, char **argv) {
         zhywyt_error((std::string("[Means Error!] : ")+info).c_str());
         return -1;
     }
-    printf("\033[1;32mCongratulate! There is not YuYi Error!\033[0m\n");
+    printf("\033[1;32mCongratulate! There is not Mean Error!\033[0m\n");
+    // }
     return 0;
 }
