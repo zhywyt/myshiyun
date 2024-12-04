@@ -7,7 +7,7 @@ Use CMake compile, maybe you need install this tools
 sudo apt install cmake gcc g++ flex bison
 ```
 ## show the tags with `git tag`
-## switch version with `git switch $TagYouWant`
+## switch version with `git switch --detach $TagYouWant`
 ## compile with `./test.sh $testfile`
 $testfile == syntax OR yuyi OR NULL
 ```bash
